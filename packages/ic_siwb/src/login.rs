@@ -184,7 +184,11 @@ pub fn login(
                 let v = _verify_message(message_string, signature.0.clone(), public_key)
                     .map_err(|_| LoginError::AddressMismatch)?;
 
-                if verify_address(address.to_string().as_str(), v).is_err() {
+                if let Ok(addr) = verify_address(address.to_string().as_str(), v) {
+                    if address.to_string() != addr {
+                        return Err(LoginError::AddressMismatch);
+                    }
+                } else {
                     return Err(LoginError::AddressMismatch);
                 }
             }
