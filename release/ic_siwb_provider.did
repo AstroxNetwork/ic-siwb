@@ -1,59 +1,85 @@
 type Address = text;
+type PublickeyHex = text;
 type CanisterPublicKey = PublicKey;
-type Delegation = record {
-  pubkey : PublicKey;
-  targets : opt vec principal;
-  expiration : Timestamp;
-};
-type GetAddressResponse = variant { Ok : Address; Err : text };
-type GetDelegationResponse = variant { Ok : SignedDelegation; Err : text };
-type GetPrincipalResponse = variant { Ok : Principal; Err : text };
-type LoginDetails = record {
-  user_canister_pubkey : CanisterPublicKey;
-  expiration : Timestamp;
-};
-type LoginResponse = variant { Ok : LoginDetails; Err : text };
-type PrepareLoginResponse = variant { Ok : SiwbMessage; Err : text };
 type Principal = blob;
 type PublicKey = blob;
-type PublickeyHex = text;
-type RuntimeFeature = variant {
-  IncludeUriInSeed;
-  DisableEthToPrincipalMapping;
-  DisablePrincipalToEthMapping;
-};
 type SessionKey = PublicKey;
-type SettingsInput = record {
-  uri : text;
-  runtime_features : opt vec RuntimeFeature;
-  domain : text;
-  statement : opt text;
-  scheme : opt text;
-  salt : text;
-  network : opt text;
-  session_expires_in : opt nat64;
-  targets : opt vec text;
-  sign_in_expires_in : opt nat64;
-};
-type SignMessageType = variant { Bip322Simple; ECDSA };
-type SignedDelegation = record { signature : blob; delegation : Delegation };
 type SiwbMessage = text;
 type SiwbSignature = text;
-type String = text;
 type Timestamp = nat64;
-service : {
-  get_address : (Principal, String) -> (GetAddressResponse) query;
-  get_caller_address : (opt String) -> (GetAddressResponse) query;
-  get_principal : (Address) -> (GetPrincipalResponse) query;
-  siwb_get_delegation : (Address, SessionKey, Timestamp) -> (
-      GetDelegationResponse,
-    ) query;
-  siwb_login : (
-      SiwbSignature,
-      Address,
-      PublickeyHex,
-      SessionKey,
-      SignMessageType,
-    ) -> (LoginResponse);
-  siwb_prepare_login : (Address) -> (PrepareLoginResponse);
-}
+type String = text;
+
+type RuntimeFeature = variant { 
+  IncludeUriInSeed; 
+  DisableEthToPrincipalMapping; 
+  DisablePrincipalToEthMapping 
+};
+
+type SignMessageType = variant {
+  ECDSA;
+  Bip322Simple
+};
+
+type SettingsInput = record {
+  domain : text;
+  uri : text;
+  salt : text;
+  network : opt text;
+  scheme : opt text;
+  statement : opt text;
+  sign_in_expires_in : opt nat64;
+  session_expires_in : opt nat64;
+  targets : opt vec text;
+  runtime_features: opt vec RuntimeFeature;
+};
+
+type GetAddressResponse = variant {
+  Ok : Address;
+  Err : text;
+};
+
+type GetDelegationResponse = variant {
+  Ok : SignedDelegation;
+  Err : text;
+};
+
+type SignedDelegation = record {
+  delegation : Delegation;
+  signature : blob;
+};
+
+type Delegation = record {
+  pubkey : PublicKey;
+  expiration : Timestamp;
+  targets : opt vec principal;
+};
+
+type GetPrincipalResponse = variant {
+  Ok : Principal;
+  Err : text;
+};
+
+type LoginResponse = variant {
+  Ok : LoginDetails;
+  Err : text;
+};
+
+type LoginDetails = record {
+  expiration : Timestamp;
+  user_canister_pubkey : CanisterPublicKey;
+};
+
+type PrepareLoginResponse = variant {
+  Ok : SiwbMessage;
+  Err : text;
+};
+
+service : (settings_input : SettingsInput) -> {
+  "get_address" : (Principal, String) -> (GetAddressResponse) query;
+  "get_caller_address" : (opt String) -> (GetAddressResponse) query;
+  "get_principal" : (Address) -> (GetPrincipalResponse) query;
+  "siwb_prepare_login" : (Address) -> (PrepareLoginResponse);
+  "siwb_login" : (SiwbSignature, Address, PublickeyHex, SessionKey, SignMessageType) -> (LoginResponse);
+  "siwb_get_delegation" : (Address, SessionKey, Timestamp) -> (GetDelegationResponse) query;
+  "prune_sigs" : () -> ();
+};

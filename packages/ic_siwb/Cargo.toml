@@ -21,7 +21,7 @@ ic-cdk-timers = { version = "0.5.1", optional = true }
 icrc-ledger-types = "0.1.4"
 ic-certified-map = "0.4.0"
 url = "2.4.1"
-time = { version = "0.3.35", features = ["formatting"] }
+#time = { version = "0.3.30", features = ["formatting"] }
 rand_chacha = { version = "0.3.1", optional = true }
 getrandom = { version = "0.2.10", features = ["custom"] }
 k256 = { version = "0.13.2", default-features = false, features = [
@@ -31,7 +31,7 @@ k256 = { version = "0.13.2", default-features = false, features = [
 ] }
 tiny-keccak = { version = "2.0.2", features = ["keccak"] }
 sha2 = "0.9.1"
-simple_asn1 = "0.6.3"
+simple_asn1 = "0.6.2"
 bitcoin = { version = "0.30.2", features = ["serde", "base64"] }
 byteorder = "1.5.0"
 base64 = "0.22.1"
