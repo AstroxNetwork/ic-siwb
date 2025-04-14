@@ -97,6 +97,11 @@ impl SignatureMap {
 
         num_pruned
     }
+    pub fn prune_all(&mut self) {
+        while let Some(expiration) = self.expiration_queue.pop() {
+            self.delete(expiration.seed_hash, expiration.delegation_hash);
+        }
+    }
 
     pub fn root_hash(&self) -> Hash {
         self.certified_map.root_hash()

@@ -255,6 +255,13 @@ pub fn login(
     })
 }
 
+pub fn prune_all(signature_map: &mut SignatureMap) {
+    SIWB_MESSAGES.with_borrow_mut(|siwb_messages| {
+        siwb_messages.clear();
+        signature_map.prune_all();
+    })
+}
+
 struct BufferWriter {}
 
 impl BufferWriter {

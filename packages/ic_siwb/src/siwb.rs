@@ -188,6 +188,10 @@ impl SiwbMessageMap {
     pub fn remove(&mut self, address_bytes: &Vec<u8>) {
         self.map.remove(address_bytes);
     }
+
+    pub fn clear(&mut self) {
+        self.map.clear();
+    }
 }
 
 impl Default for SiwbMessageMap {

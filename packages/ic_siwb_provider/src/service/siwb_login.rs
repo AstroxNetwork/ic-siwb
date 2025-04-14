@@ -1,4 +1,5 @@
-use candid::Principal;
+use candid::{candid_method, Principal};
+use ic_cdk::api::is_controller;
 use ic_cdk::update;
 
 use ic_siwb::login::{BtcSignature, LoginDetails, SignMessageType};
@@ -69,6 +70,15 @@ fn siwb_login(
     })
 }
 
+#[update(name = "prune_sigs", guard = "controller_guard")]
+#[candid_method(update, rename = "prune_sigs")]
+fn prune_sigs() {
+    STATE.with(|state| {
+        let signature_map = &mut *state.signature_map.borrow_mut();
+        ic_siwb::login::prune_all(signature_map);
+    })
+}
+
 fn manage_principal_address_mappings(principal: &Blob<29>, address: &AddressScriptBuf) {
     SETTINGS.with(|s| {
         if !s.borrow().disable_principal_to_btc_mapping {
@@ -82,4 +92,14 @@ fn manage_principal_address_mappings(principal: &Blob<29>, address: &AddressScri
             });
         }
     });
+}
+
+#[inline]
+fn controller_guard() -> Result<(), String> {
+    match is_controller(&ic_cdk::caller()) {
+        true => Ok(()),
+        false => {
+            ic_cdk::api::trap("Only the controller can call this function");
+        }
+    }
 }
