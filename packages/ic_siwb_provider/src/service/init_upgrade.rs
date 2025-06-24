@@ -1,5 +1,6 @@
-use candid::{CandidType, Principal};
-use ic_cdk::{init, post_upgrade};
+use crate::service::siwb_login::controller_guard;
+use candid::{candid_method, CandidType, Principal};
+use ic_cdk::{init, post_upgrade, update};
 use ic_siwb::bitcoin::Network;
 use ic_siwb::bitcoin::Network::Bitcoin;
 use ic_siwb::settings::SettingsBuilder;
@@ -153,5 +154,11 @@ fn init(settings: SettingsInput) {
 /// settings after users have started using the service!
 #[post_upgrade]
 fn upgrade(settings: SettingsInput) {
+    siwb_init(settings);
+}
+
+#[update(name = "update_settings", guard = "controller_guard")]
+#[candid_method(update, rename = "update_settings")]
+fn update_settings(settings: SettingsInput) {
     siwb_init(settings);
 }

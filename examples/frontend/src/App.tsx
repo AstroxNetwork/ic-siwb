@@ -3,6 +3,7 @@ import btcLogo from './assets/btc.svg';
 import './App.css';
 import { useSiwbIdentity } from 'ic-use-siwb-identity';
 import { Button, Typography } from 'antd';
+import { whoAmI } from './utils/call_test';
 
 // import { useSiwbIdentity } from 'ic-use-siwb-identity'
 
@@ -39,6 +40,14 @@ function App() {
         }}
       >
         Click here to try again
+      </Button>
+      <Button
+        type="primary"
+        onClick={async () => {
+          console.log('identity', identity?.getPrincipal().toText());
+        }}
+      >
+        call test
       </Button>
     </>
   );

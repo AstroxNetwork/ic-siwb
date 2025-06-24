@@ -229,6 +229,14 @@ export function SiwbIdentityProvider<T extends SIWB_IDENTITY_SERVICE>({
       return;
     }
 
+    console.log(
+      signedDelegation.delegation.targets.forEach(targets => {
+        targets.forEach(target => {
+          console.log(target.toText());
+        });
+      }),
+    );
+
     // Create a new delegation chain from the delegation.
     const delegationChain = createDelegationChain(signedDelegation, loginOkResponse.user_canister_pubkey);
 

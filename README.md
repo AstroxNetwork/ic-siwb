@@ -5,7 +5,6 @@ A Sign-In with Bitcoin for the Internet Computer.
 
 
 - [Local Development](#local-development)
-- [Remote/Mainnet Development](#remotemainnet-development)
 - [Frontend Integration and Example](#frontend-integration-and-example)
 
 ## Local Development
@@ -33,31 +32,6 @@ dfx deploy ic_siwb_provider --argument $'(                                      
 ```
 
 Deployment Arguments Explaination: [init_upgrade.rs](https://github.com/AstroxNetwork/ic-siwb/blob/5f763c7af5a209845b35ed28e30e1618f7feae83/packages/ic_siwb_provider/src/service/init_upgrade.rs#L23)
-
-## Remote/Mainnet Development
-
-Choice 1:
-
-We have deployed the canisters to the mainnet, you can use them directly. They gives users global principal across different websites.
-`ic_siwb_provider` is for Bitcoin Mainnet
-`ic_siwb_provider_testnet` is for Bitcoin Testnet3/Testnet4
-
-```json
-{
-  "ic_siwb_provider": {
-    "ic": "mwm4a-eiaaa-aaaah-aebnq-cai"
-  },
-  "ic_siwb_provider_testnet": {
-    "ic": "stxih-wyaaa-aaaah-aq2la-cai"
-  }
-}
-```
-
-Choice 2:
-
-Deploy yourself, use the `dfx deploy --ic --argument ...` command.
-
-You can look for parameters in the [init_upgrade.rs](https://github.com/AstroxNetwork/ic-siwb/blob/5f763c7af5a209845b35ed28e30e1618f7feae83/packages/ic_siwb_provider/src/service/init_upgrade.rs#L23)
 
 
 

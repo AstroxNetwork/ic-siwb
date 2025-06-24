@@ -81,5 +81,6 @@ service : (settings_input : SettingsInput) -> {
   "siwb_prepare_login" : (Address) -> (PrepareLoginResponse);
   "siwb_login" : (SiwbSignature, Address, PublickeyHex, SessionKey, SignMessageType) -> (LoginResponse);
   "siwb_get_delegation" : (Address, SessionKey, Timestamp) -> (GetDelegationResponse) query;
+  "update_settings" : (settings_input : SettingsInput) -> ();
   "prune_sigs" : () -> ();
 };
