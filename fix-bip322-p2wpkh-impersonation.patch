@@ -1,0 +1,66 @@
+From d1a8ad088977777642ed6b478c8255e7df1d4189 Mon Sep 17 00:00:00 2001
+From: andredevjs <97211514+andredevjs@users.noreply.github.com>
+Date: Wed, 1 Apr 2026 00:15:27 -0600
+Subject: [PATCH] fix: add pubkey-to-address binding in BIP322 P2WPKH signature
+ verification
+
+Addresses a critical authentication bypass vulnerability in
+verify_signature_of_bip322_simple_segwitv0 that allows an attacker
+to impersonate any P2WPKH (bc1q) user with zero prerequisites.
+
+The BIP322 Simple verification for P2WPKH extracts the public key
+from the witness data (attacker-controlled) and verifies the ECDSA
+signature against it, but never checks that HASH160(pubkey) matches
+the hash encoded in the claimed bc1q address. This allows an attacker
+to generate a random keypair, craft a valid BIP322 witness, and
+obtain a delegation for any bc1q user's principal.
+
+The P2TR (bc1p) path is not affected because it correctly extracts
+the public key from the address itself, not from the witness.
+
+Changes:
+- Add address derivation check after pubkey extraction: derive a
+  P2WPKH address from the witness pubkey and reject if it does not
+  match the claimed address
+- Change .unwrap_or(true) to .unwrap_or(false) in the ECDSA
+  verification result handler to fail safely on error instead of
+  defaulting to valid
+---
+ packages/ic_siwb/src/login.rs | 14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
+
+diff --git a/packages/ic_siwb/src/login.rs b/packages/ic_siwb/src/login.rs
+index f4cb5f5..2d3ad7b 100644
+--- a/packages/ic_siwb/src/login.rs
++++ b/packages/ic_siwb/src/login.rs
+@@ -623,6 +623,18 @@ fn verify_signature_of_bip322_simple_segwitv0(
+         Ok(key) => key,
+         Err(_) => return false,
+     };
++
++    // Verify that the witness public key corresponds to the claimed address.
++    // Without this check, an attacker can substitute their own key and signature
++    // to impersonate any P2WPKH (bc1q) address.
++    let derived_address = match Address::p2wpkh(&pubkey, network) {
++        Ok(addr) => addr,
++        Err(_) => return false,
++    };
++    if derived_address.to_string() != address {
++        return false;
++    }
++
+     let mut partial_sig = BTreeMap::new();
+     partial_sig.insert(pubkey, sig);
+ 
+@@ -650,7 +662,7 @@ fn verify_signature_of_bip322_simple_segwitv0(
+                             secp.verify_ecdsa(&message, &signature.sig, &pubkey.inner)
+                                 .is_ok()
+                         })
+-                        .unwrap_or(true),
++                        .unwrap_or(false),
+                     Err(_) => false,
+                 },
+                 None => false,
+-- 
+2.53.0
+

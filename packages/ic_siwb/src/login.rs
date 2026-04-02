@@ -623,6 +623,18 @@ fn verify_signature_of_bip322_simple_segwitv0(
         Ok(key) => key,
         Err(_) => return false,
     };
+
+    // Verify that the witness public key corresponds to the claimed address.
+    // Without this check, an attacker can substitute their own key and signature
+    // to impersonate any P2WPKH (bc1q) address.
+    let derived_address = match Address::p2wpkh(&pubkey, network) {
+        Ok(addr) => addr,
+        Err(_) => return false,
+    };
+    if derived_address.to_string() != address {
+        return false;
+    }
+
     let mut partial_sig = BTreeMap::new();
     partial_sig.insert(pubkey, sig);
 
@@ -650,7 +662,7 @@ fn verify_signature_of_bip322_simple_segwitv0(
                             secp.verify_ecdsa(&message, &signature.sig, &pubkey.inner)
                                 .is_ok()
                         })
-                        .unwrap_or(true),
+                        .unwrap_or(false),
                     Err(_) => false,
                 },
                 None => false,
